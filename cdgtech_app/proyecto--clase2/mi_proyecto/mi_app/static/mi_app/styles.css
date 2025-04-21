@@ -1,0 +1,564 @@
+/* ========== ESTILOS GENERALES ========== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* ========== PESTAÑAS ========== */
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ccc;
+    gap: 0.5rem;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.tab.active {
+    background-color: #fff;
+    font-weight: bold;
+}
+
+/* ========== CONTENEDORES DE TABLAS ========== */
+
+.tabla-productos,
+.tabla-clientes {
+    display: block; /* Cambié de flex a block para las tablas */
+    overflow-x: auto; /* Para evitar desbordamiento horizontal */
+}
+
+.tab-content {
+    display: none; /* Asegúrate de que las pestañas no activas estén ocultas */
+}
+
+.tab-content.active {
+    display: block; /* Solo la pestaña activa se debe mostrar */
+}
+
+
+
+
+/* ========== ENCABEZADO Y FILAS DE LAS TABLAS ================================================================================ */
+.encabezado,
+.fila {
+    display: grid;
+    align-items: stretch;
+    position: relative;
+    text-align: center;
+}
+
+.encabezado {
+    background-color: #e2e6ea;
+    font-weight: bold;
+    border-top: 2px solid #333;
+    border-bottom: 2px solid #333;
+}
+
+.encabezado > div,
+.fila > div {
+    padding: 10px 0;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.encabezado > div:last-child,
+.fila > div:last-child {
+    border-right: none;
+}
+
+/* Columnas específicas para cada tabla */
+.tabla-productos .encabezado,
+.tabla-productos .fila {
+    grid-template-columns: 0.5fr 0.5fr 1fr 1fr 1fr 1.2fr 1fr 1fr;
+}
+
+.tabla-clientes .encabezado,
+.tabla-clientes .fila {
+    grid-template-columns: 0.5fr 1.5fr 1.5fr 1fr 2fr;
+}
+
+/* Modifica el color de la fila al pasar el click encima */
+
+.fila {
+    cursor: pointer;
+}
+
+.fila:hover {
+    filter: brightness(0.95); /* 95% del brillo original */
+}
+
+/* ========== INDICADOR DE ESTADO CON BANDA DE COLOR ================================================== */
+
+.fila::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background-color: transparent;
+    z-index: 1;
+}
+
+.fila.pendiente {
+    background-color: #ffcdcd;
+}
+.fila.pendiente::before {
+    background-color: #ff0707;
+}
+
+.fila.en-reparacion {
+    background-color: #d1ecf1;
+}
+.fila.en-reparacion::before {
+    background-color: #17a2b8;
+}
+
+.fila.listo {
+    background-color: #d4edda;
+}
+.fila.listo::before {
+    background-color: #28a745;
+}
+
+/* ========== ACCIONES (BOTONES) ================================================================================ */
+.acciones {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: nowrap;
+
+}
+
+button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    
+}
+
+.boton_estado {
+    max-height: 30px;
+}
+
+
+
+button:hover {
+    opacity: 0.9;
+}
+
+.btn-eliminar {
+    background-color: red;
+}
+
+button {
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-guardar {
+    min-width: 120px; /* Ajustá este valor según tu diseño */
+    min-height: 30px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.btn-guardar.guardado {
+    background-color: #4CAF50; /* Verde de éxito */
+    color: white;
+}
+
+/* ========== BOTONES BARRA SUPERIOR ========== */
+
+.botones_barra_superior {
+    display: flex;
+    gap: 20px ;
+    font-size: 20px;
+    justify-content: space-between
+}
+
+.boton_logout {
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.boton_agregar {
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+/* ========== BOTON PDF ========== */
+
+.btn-pdf {
+    background-color: #6c757d; /* gris oscuro */
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 5px;
+}
+
+.btn-pdf:hover {
+    background-color: #5a6268;
+}
+
+
+/* ========== DETALLES EXPANDIBLES ======================================================================  */
+
+.detalle-form {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem;
+    transition: max-height 0.3s ease;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+}
+
+.detalle-flex {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 1rem;
+    border: 1px solid #ccc;
+    height: auto;
+}
+
+.detalle-info,
+.detalle-notas,
+.detalle-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detalle-info {
+    padding-right: 1rem;
+    border-right: 1px solid #ccc;
+}
+
+.detalle-notas {
+    padding: 0 1rem;
+    border-right: 1px solid #ccc;
+}
+
+.detalle-notas textarea {
+    resize: vertical;
+    min-height: 100px;
+    max-height: 180px;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.detalle-form {
+    overflow-y: auto;
+    max-height: auto;
+}
+
+.detalle-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detalle-form input,
+.detalle-form textarea,
+.detalle-form select {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.detalle textarea {
+    resize: vertical;
+    min-height: 150px;
+    overflow-y: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ========== FORMULARIO NUEVO PRODUCTO ======================================================================  */
+/* Estilo del formulario */
+#form-nuevo-producto {
+    display: none;
+    position: fixed;  /* Para que siempre esté centrado en la pantalla */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.97);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;  /* Aumenta el espacio entre todos los elementos */
+    max-width: 600px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Campos del formulario */
+#form-nuevo-producto label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    margin-bottom: 10px;  /* Espacio entre el campo y el siguiente */
+}
+
+/* Campos de entrada */
+#form-nuevo-producto input,
+#form-nuevo-producto textarea,
+#form-nuevo-producto select {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;  /* Espacio debajo de cada campo de entrada */
+    border: 1px solid #ccc;  /* Agregar borde similar al de cliente */
+    border-radius: 6px;      /* Bordes redondeados */
+    background-color: #f9f9f9;  /* Color de fondo suave */
+}
+
+#form-nuevo-producto input:focus,
+#form-nuevo-producto textarea:focus {
+    border-color: #007BFF;  /* Borde azul cuando se enfoca */
+    outline: none;  /* Quita el contorno predeterminado */
+}
+
+/* Botón del formulario */
+#form-nuevo-producto button[type="submit"] {
+    align-self: flex-start;
+    padding: 12px 24px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;  /* Espacio por encima del botón */
+}
+
+#form-nuevo-producto button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Hace que al agregar un producto y buscas al cliente aparezca como una lista */
+#clientes-busqueda-resultados {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+#clientes-busqueda-resultados div {
+    padding: 5px;
+    cursor: pointer;
+}
+
+#clientes-busqueda-resultados div:hover {
+    background-color: #f0f0f0;
+}
+
+/* Formulario nuevo cliente */
+.contenedor-nuevo-cliente {
+    position: relative;
+    display: inline-block; /* Para que el formulario se ajuste al tamaño del botón y no a toda la pantalla */
+}
+
+/* Estilo del formulario de nuevo cliente */
+#form-nuevo-cliente {
+    display: none;
+    position: fixed;  /* Fijado al centro de la pantalla */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  /* Centrado automático */
+    background-color: rgba(255, 255, 255, 0.97);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;  /* Aumenta el espacio entre todos los elementos */
+    max-width: 600px;  /* Ancho máximo */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Campos del formulario */
+#form-nuevo-cliente label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    margin-bottom: 10px;  /* Espacio entre el campo y el siguiente */
+}
+
+/* Campos de entrada */
+#form-nuevo-cliente input,
+#form-nuevo-cliente textarea,
+#form-nuevo-cliente select {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;  /* Espacio debajo de cada campo de entrada */
+}
+
+/* Botón del formulario */
+#form-nuevo-cliente button[type="submit"] {
+    align-self: flex-start;
+    padding: 12px 24px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;  /* Espacio por encima del botón */
+}
+
+#form-nuevo-cliente button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+/* ==========  ESTADOS COLORES ======================================================================  */
+
+.estado-por-revisar { background-color: #fce4ec; }
+.estado-en-revision { background-color: #e3f2fd; }
+.estado-presupuestado { background-color: #fff3e0; }
+.estado-aceptado { background-color: #e8f5e9; }
+.estado-esperando-repuestos { background-color: #f9fbe7; }
+.estado-en-reparacion { background-color: #ede7f6; }
+.estado-finalizado { background-color: #f0f4c3; }
+.estado-listo { background-color: #e0f7fa; }
+.estado-entregado { background-color: #d7ccc8; }
+.estado-no-aceptado { background-color: #ffebee; }
+.estado-cancelado { background-color: #ef9a9a; }
+
+.estado-div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+
+.estado {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.estado-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 160px; /* Puedes ajustar este valor según lo que necesites */
+    padding: 4px 8px;
+}
+
+.estado-wrapper span {
+    display: inline-block;
+    text-align: center;
+    min-width: 100px; /* Mantiene el ancho fijo para que no salten las flechas */
+}
+
+.boton_estado {
+    margin: 1px;
+}
+
+
+/* ==========  TOOLTIP (NO FUNCINANDO) ======================================================================
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .tooltip-text {
+    visibility: hidden;
+    width: 300px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    padding: 8px 5px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1000; /* más alto para estar por encima de todo */
+    /* top: 125%; ahora sale hacia abajo
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    align-items: center;
+  }
+  .tooltip-text::after {
+    content: "";
+    position: absolute;
+    bottom: 100%; /* flechita queda arriba del tooltip */
+    /*  
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+  }
+  .tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  } 
+  */
+
+.input-error {
+    border: 2px solid red;
+    background-color: #ffe6e6;
+}
+
+.error-text {
+    color: red;
+    font-size: 0.9em;
+}
+
+.disabled-btn {
+    background-color: #ccc !important;
+    cursor: not-allowed !important;
+}
