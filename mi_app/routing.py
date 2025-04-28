@@ -1,9 +1,6 @@
 from django.urls import re_path
-from . import consumers
+from mi_proyecto import consumers
 
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": URLRouter([
-        re_path(r"^ws/productos/$", consumers.ProductoConsumer.as_asgi()),
-    ]),
-})
+websocket_urlpatterns = [
+    re_path(r'ws/productos/$', consumers.ProductosConsumer.as_asgi()),
+]
