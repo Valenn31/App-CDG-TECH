@@ -487,7 +487,9 @@ function editarCliente(event, clienteId) {
 
 
 
-const socket = new WebSocket("ws://" + window.location.host + "/ws/productos/");
+const loc = window.location;
+const wsStart = loc.protocol === "https:" ? "wss://" : "ws://";
+const socket = new WebSocket(wsStart + loc.host + "/ws/productos/");
 
 socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
