@@ -1,0 +1,16 @@
+
+Cosas por hacer sistema de CDG TECH:
+
+Distintas vistas de los usuarios (admin,tecnico,etc)
+Plantilla del PDF de las ordenes
+(opcional) Hacer una vista del admin para administrar los distintos perfiles desde la pagina y no desde /admin/
+Control de presupuesto desde cada orden (preguntar lo q se requeriria)
+Msg de WPP automatico desde la orden (caja de texto + boton) tiene que enviarte al link de wpp con el msg armado en la caja de texto
+
+
+PDF
+- Borrar Notas tecnicas y Estado de la orden
+
+PROBLEMAS
+
+✔ - Al agregar un cliente buguea la vista y el apelido aparece donde va el dni

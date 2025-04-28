@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- PLANTILLA CARGADA CORRECTAMENTE -->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos y Clientes</title>
+    <link rel="stylesheet" href="{% static 'mi_app/styles.css' %}">
+    <link rel="icon" href="https://s1.npass.app/icons/127.0.0.1.png">
+    <script src="{% static 'mi_app/scripts.js' %}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1360, initial-scale=1.0">
+</head>
+
+<!-- VER ESTA PARTE DEL CODIGO (SCRIP DE ABAJO) -->
+
+<script>
+    const socket = new WebSocket(
+        (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/productos/'
+    );
+    
+    socket.onopen = function(e) {
+        console.log("Conectado al WebSocket");
+    };
+    
+    socket.onclose = function(e) {
+        console.log("WebSocket cerrado");
+    };
+    
+    socket.onerror = function(error) {
+        console.error("Error en WebSocket:", error);
+    };
+</script>
+
+
+<body>
+    <div class="barra_superior">
+        <div class="barra_superior_logo">
+            <img src="{% static 'mi_app/img/logo.png' %}" alt="Logo">
+            <h1>Gestión de Reparaciones - Cañada Tech</h1>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="user-info">
+                <p>Usuario: {{ user.username }}</p>
+                <p>Rol: {{ user.rol|title }}</p>  {# le aplico title para que se vea más lindo: Admin, Tecnico, Recepcionista #}
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button class='boton_logout' type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        {% else %}
+            <p>No has iniciado sesión.</p>
+        {% endif %}
+    </div>
+    
+
+    <!-- PESTAÑAS -->
+    <div class="tabs">
+        <div class="tab active" data-tab="productos" onclick="cambiarTab('productos')">Productos</div>
+        <div class="tab" data-tab="clientes" onclick="cambiarTab('clientes')">Clientes</div>
+    </div>
+
+    <!-- TAB PRODUCTOS -->
+    <div id="tab-productos" class="tab-content active">
+        
+        <!-- BOTÓN Y FORMULARIO NUEVO PRODUCTO -->
+        <div class="botones_barra_superior">
+            <button class="boton_agregar" onclick="toggleFormulario('form-nuevo-producto')">➕ Añadir nuevo producto</button>
+            <!-- <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button class='boton_logout' type="submit">Cerrar sesión</button>
+            </form> -->
+        </div>
+        <form id="form-nuevo-producto" onsubmit="crearProducto(event)" style="display: none;">
+            {% csrf_token %}
+            <label>Cliente (DNI o Nombre): 
+                <input type="text" id="cliente-buscar" name="cliente-buscar" placeholder="Buscar cliente por DNI o nombre">
+            </label>
+            <div id="clientes-busqueda-resultados" style="display: none;"></div>
+        
+            <label>Si el cliente no está, ingrese el DNI manualmente:
+                <input type="text" name="dni" pattern="\d{8}" placeholder="DNI (8 dígitos)">
+            </label>
+        
+            <label>Producto: <input type="text" name="producto" required></label>
+            <label>Marca: <input type="text" name="marca" required></label>
+            <label>Descripción del problema:
+                <textarea name="descripcion_problema" required></textarea>
+            </label>
+            <button type="submit">Añadir producto 🧾</button>
+        </form>
+        
+
+        {% if productos %}
+        <div class="tabla-productos">
+            <div class="encabezado">
+                <div>N° Orden</div>
+                <div>Ingreso</div>
+                <div>Teléfono</div>
+                <div>Cliente</div>
+                <div>Producto</div>
+                <div>Marca</div>
+                <div>Estado</div>
+                <div>Acciones</div>
+            </div>
+
+            {% for producto in productos %}
+            <div class="fila estado-{{ producto.estado|slugify }}" id="fila-{{ producto.id }}" onclick="toggleDetalles({{ producto.id }})">
+
+                <div>{{ producto.id }}</div>
+                <div>{{ producto.fecha_ingreso|date:"d/m/Y" }}</div>
+                <div>{{ producto.cliente.telefono }}</div>
+                <div>{{ producto.cliente.nombre }} {{ producto.cliente.apellido }}</div>
+                <div id="prod-nombre-{{ producto.id }}">{{ producto.producto }}</div>
+                <div>{{ producto.marca }}</div>
+                <div id="estado-{{ producto.id }}">{{ producto.estado|title }}</div>
+                <div class="acciones">
+                    <!-- <td class="acciones">
+                    <div class="tooltip-container">
+                        <i class="icono-nota">📝</i>
+                            <div class="tooltip-text">                    
+                                {{ producto.notas_tecnicas }}
+                            </div>
+                        </div>
+                    </td> -->
+                      
+                    <!-- <button id="btn-detalle-{{ producto.id }}" onclick="toggleDetalles({{ producto.id }})">Ver más 🔽</button> -->
+                    <a href="{% url 'generar_pdf' producto.id %}" class="btn-pdf" title="Generar PDF" target="_blank">🧾</a>
+                    <form action="{% url 'eliminar_orden' producto.id %}" method="post" onsubmit="return confirm('¿Eliminar esta orden?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-eliminar">🗑️</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- DETALLES -->
+            <div id="detalle-{{ producto.id }}" class="detalle {{ producto.estado|slugify }}" style="display: none;">
+                <div class="detalle-flex tres-columnas">
+                    <!-- COLUMNA 1 -->
+                    <div class="detalle-info">
+                        <p><strong>Descripción completa:</strong> {{ producto.descripcion_problema }}</p>
+                        <p><strong>Fecha De Ingreso:</strong> {{ producto.fecha_ingreso|date:"d/m/Y" }}</p>
+                        <button onclick="mostrarFormulario({{ producto.id }})">Editar orden ✏️</button>
+                    </div>
+
+                    <!-- COLUMNA 2: Notas técnicas -->
+                    <div class="detalle-notas">
+                        <form onsubmit="guardarNotasTecnicas(event, {{ producto.id }})">
+                            {% csrf_token %}
+                            <label for="notas-{{ producto.id }}"><strong>Notas técnicas:</strong></label>
+                            <textarea id="notas-{{ producto.id }}" name="notas_tecnicas">{{ producto.notas_tecnicas }}</textarea>
+                            <button type="submit">Guardar notas 🛠️</button>
+                        </form>
+                    </div>
+
+                    <!-- COLUMNA 3: Formulario edición -->
+                    <div class="detalle-form">
+                        <form id="form-editar-{{ producto.id }}" class="formulario-compacto" style="display: none;" onsubmit="enviarFormulario(event, {{ producto.id }})">
+                            {% csrf_token %}
+                            <label>Producto:
+                                <input type="text" name="producto" value="{{ producto.producto }}">
+                            </label>
+                            <label>Marca:
+                                <input type="text" name="marca" value="{{ producto.marca }}">
+                            </label>
+                            <label>Descripción:
+                                <textarea name="descripcion_problema">{{ producto.descripcion_problema }}</textarea>
+                            </label>
+                            
+                            <!-- Cambié 'td' por un div, ya que no parece ser parte de una tabla -->
+                            <div class="estado-div">
+                                <button type="submit" class="btn-guardar" data-id="{{ producto.id }}">Guardar</button>
+                                
+                                <div class="estado">
+                                    <!-- Botones para cambiar estado -->
+                                    <button type="button" class="boton_estado" onclick="cambiarEstado({{ producto.id }}, 'retroceder')">⇦</button>
+                                    <button type="button" class="boton_estado" onclick="cambiarEstado({{ producto.id }}, 'avanzar')">⇨</button>
+                                    <p>Cambiar Estado</p>
+                                </div>
+                                
+                            </div>
+                        </form>
+                    </div>
+                    
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No hay productos cargados.</p>
+        {% endif %}
+    </div>
+
+    <!-- TAB CLIENTES -->
+    <div id="tab-clientes" class="tab-content">
+        <div class="contenedor-nuevo-cliente">
+            <button id="boton_agregar_cliente" class="boton_agregar" onclick="toggleFormulario('form-nuevo-cliente')">➕ Agregar nuevo cliente</button>
+            <form id="form-nuevo-cliente" onsubmit="crearCliente(event)" style="display: none;">
+                {% csrf_token %}
+                <label>DNI: <input type="text" name="dni" pattern="\d{8}" required></label>
+                <label>Nombre: <input type="text" name="nombre" required></label>
+                <label>Apellido: <input type="text" name="apellido" required></label>
+                <label>Teléfono: <input type="text" name="telefono" required></label>
+                <label>Email: <input type="text" name="email"></label>
+                <button type="submit">Crear cliente ➕</button>
+            </form>
+        </div>
+    <div>
+        
+
+        {% if clientes %}
+        <div class="tabla-clientes">
+            <div class="encabezado">
+                <div>ID</div>
+                <div>Nombre y apellido</div>
+                <div>DNI</div>
+                <div>Teléfono</div>
+                <div>Email</div>
+            </div>
+    
+            {% for cliente in clientes %}
+                <div class="fila" onclick="toggleDetallesCliente({{ cliente.id }})">
+                    <div id="cliente-id-{{ cliente.id }}">{{ cliente.id }}</div>
+                    <div id="cliente-nombre-{{ cliente.id }}">{{ cliente.nombre }} {{ cliente.apellido }}</div>
+                    <div id="cliente-dni-{{ cliente.id }}">{{ cliente.dni }}</div>
+                    <div id="cliente-telefono-{{ cliente.id }}">{{ cliente.telefono }}</div>
+                    <div id="cliente-email-{{ cliente.id }}">{{ cliente.email }}</div>
+                </div>
+    
+                <!-- DETALLE EDITABLE CLIENTE -->
+                <div id="detalle-cliente-{{ cliente.id }}" class="detalle-cliente" style="display: none;">
+                    <form onsubmit="editarCliente(event, {{ cliente.id }})">
+
+                        {% csrf_token %}
+                        <div class="detalle-cliente-flex">
+
+                            <div class="detalle-cliente-info">
+                                <label>Nombre:
+                                    <input type="text" name="nombre" value="{{ cliente.nombre }}">
+                                </label>
+                                <label>Apellido:
+                                    <input type="text" name="apellido" value="{{ cliente.apellido }}">
+                                </label>
+                                <label>DNI:
+                                    <input type="text" name="dni" id="dni-input-{{ cliente.id }}" value="{{ cliente.dni }}" oninput="validarDni({{ cliente.id }})">
+                                    <small id="dni-error-{{ cliente.id }}" class="error-text"></small>
+                                </label>
+                            </div>
+
+                            <div class="detalle-cliente-info">
+                                <label>Teléfono:
+                                    <input type="text" name="telefono" value="{{ cliente.telefono }}">
+                                </label>
+                                <label>Email:
+                                    <input type="email" name="email" value="{{ cliente.email }}">
+                                </label>
+                                <button type="submit" id="btn-guardar-{{ cliente.id }}">Guardar cambios 💾</button>
+                            </div>
+
+                            <div class="detalle-cliente-productos">
+                                <p>Ordenes: {{ cliente.producto_set.count }}</p>
+
+                                {% if cliente.producto_set.exists %}
+                                <div class="productos-cliente">
+                                    <h3>Productos asociados:</h3>
+                                    <div class="producto-cont" style="margin-bottom: 0.5rem;">
+                                        {% for producto in cliente.producto_set.all %}
+                                            <div class="producto-item">
+                                                <span class="producto-id">#{{ producto.id }}</span>
+                                                <span class="producto-nombre">{{ producto.producto }}</span>
+                                                <span class="producto-estado estado-{{ producto.estado|lower|slugify }}">{{ producto.estado }}</span>
+                                            </div>
+                                        {% endfor %} 
+                                    </div>
+                                    
+                                </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                        
+
+
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p>No hay clientes disponibles.</p>
+        {% endif %}
+    
+    
+
+    
+</body>
+<script src="{% static 'mi_app/scripts.js' %}"></script>
+</html>
